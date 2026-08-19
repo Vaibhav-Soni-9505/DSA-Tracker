@@ -259,10 +259,32 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
+    const previousState = current;
+    const nextStage = (previousState.revisionStage + 1) as RevisionStage;
+    let nextRev: string | null = null;
+    if (nextStage < 5) {
+      nextRev = toDateString(addDays(today, REVISION_INTERVALS[nextStage as 0 | 1 | 2 | 3 | 4]));
+    }
+
+    // Optimistic Update
+    setProgress(prev => ({
+      ...prev,
+      [problemId]: {
+        ...prev[problemId],
+        revisionStage: nextStage,
+        nextRevisionAt: nextRev
+      }
+    }));
+
     try {
-      const res = await progressApi.review(problemId, toDateString(today), current.revisionStage);
+      const res = await progressApi.review(problemId, toDateString(today), previousState.revisionStage);
       setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
     } catch (e: any) {
+      // Rollback on failure
+      setProgress(prev => ({
+        ...prev,
+        [problemId]: previousState
+      }));
       if (e?.code === "INVALID_TOKEN" || e?.code === "AUTHENTICATION_REQUIRED") {
         return;
       }
