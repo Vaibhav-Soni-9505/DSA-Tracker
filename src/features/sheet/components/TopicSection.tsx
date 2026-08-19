@@ -21,7 +21,7 @@ export const TopicSection: React.FC<TopicSectionProps> = ({
   searchQuery,
   filter,
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { today } = useSimulatedDate();
 
   // 1. Calculate count
