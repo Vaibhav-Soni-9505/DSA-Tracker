@@ -7,6 +7,8 @@ import SettingsPage from "@/features/settings/pages/SettingsPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -17,7 +19,11 @@ export const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <DashboardPage /> },
       { path: "sheet", element: <SheetPage /> },
