@@ -166,6 +166,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setProgress({ ...generateEmptyProgress(), ...serverDict });
         }
       } catch (err: any) {
+        if (err?.code === "INVALID_TOKEN" || err?.code === "AUTHENTICATION_REQUIRED") {
+          return;
+        }
         if (isMounted) {
           setError(err.message || "Unable to load your progress. Please try again.");
         }
@@ -230,6 +233,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         ...prev,
         [problemId]: previousState
       }));
+      if (e?.code === "INVALID_TOKEN" || e?.code === "AUTHENTICATION_REQUIRED") {
+        return;
+      }
       console.error(e);
       alert(e.message || "Failed to update progress.");
     }
@@ -257,6 +263,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const res = await progressApi.review(problemId, toDateString(today), current.revisionStage);
       setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
     } catch (e: any) {
+      if (e?.code === "INVALID_TOKEN" || e?.code === "AUTHENTICATION_REQUIRED") {
+        return;
+      }
       console.error(e);
       if (e.code === "STALE_PROGRESS") {
         alert("This problem was updated elsewhere. Refreshing progress...");
@@ -284,6 +293,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Explicitly DO NOT remove the migration marker.
       // If we did, a refresh would re-trigger migration and resurrect old localStorage data!
     } catch (e: any) {
+      if (e?.code === "INVALID_TOKEN" || e?.code === "AUTHENTICATION_REQUIRED") {
+        return;
+      }
       console.error(e);
       alert("Failed to reset progress.");
     }

@@ -15,6 +15,8 @@ export class ApiError extends Error {
 }
 
 export const api = {
+  onAuthError: null as (() => void) | null,
+
   getToken() {
     return localStorage.getItem(TOKEN_KEY);
   },
@@ -53,6 +55,12 @@ export const api = {
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
+      if (response.status === 401 && endpoint !== "/auth/login" && endpoint !== "/auth/register") {
+        if (this.onAuthError) {
+          this.onAuthError();
+        }
+      }
+
       if (data && data.error) {
         const apiErrorData = data as ApiErrorResponse;
         throw new ApiError(apiErrorData.error.message, apiErrorData.error.code);

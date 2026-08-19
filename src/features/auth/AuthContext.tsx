@@ -27,6 +27,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    api.onAuthError = () => {
+      logout();
+    };
+    return () => {
+      api.onAuthError = null;
+    };
+  }, [logout]);
+
+  useEffect(() => {
     async function restoreSession() {
       const currentToken = api.getToken();
       if (!currentToken) {
