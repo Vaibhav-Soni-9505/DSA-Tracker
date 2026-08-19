@@ -21,7 +21,7 @@ export const StepAccordion: React.FC<StepAccordionProps> = ({
   searchQuery,
   filter,
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { today } = useSimulatedDate();
 
   // 1. Calculations
