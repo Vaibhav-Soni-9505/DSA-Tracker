@@ -16,8 +16,8 @@ The backend is an Express Node.js application. A `render.yaml` blueprint is prov
 **Configuration:**
 - **Platform:** Render (Web Service)
 - **Environment:** Node
-- **Build Command:** `npm install`
-- **Start Command:** `npm run server`
+- **Build Command:** `npm install --include=dev && npm run build`
+- **Start Command:** `npm start`
 - **Health Endpoint:** `/api/v1/health`
 
 **Required Environment Variables:**

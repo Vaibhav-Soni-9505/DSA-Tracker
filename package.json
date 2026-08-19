@@ -7,6 +7,7 @@
     "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
     "dev": "vite",
     "server": "tsx server/server.ts",
+    "start": "node dist-server/server/server.js",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
