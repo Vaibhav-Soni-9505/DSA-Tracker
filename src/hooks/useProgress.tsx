@@ -205,8 +205,19 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
+    const previousState = current;
+
+    // Optimistic Update
+    setProgress(prev => ({
+      ...prev,
+      [problemId]: {
+        ...prev[problemId],
+        solved: !previousState.solved
+      }
+    }));
+
     try {
-      if (current.solved) {
+      if (previousState.solved) {
         const res = await progressApi.unsolve(problemId);
         setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
       } else {
@@ -214,6 +225,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
       }
     } catch (e: any) {
+      // Rollback on failure
+      setProgress(prev => ({
+        ...prev,
+        [problemId]: previousState
+      }));
       console.error(e);
       alert(e.message || "Failed to update progress.");
     }
