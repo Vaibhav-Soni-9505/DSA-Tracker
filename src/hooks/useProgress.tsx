@@ -63,7 +63,7 @@ export const migrateState = (saved: Record<string, any>): Record<string, UserPro
 };
 
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { today } = useSimulatedDate();
+  const { today, isSimulated } = useSimulatedDate();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   
   const [progress, setProgress] = useState<Record<string, UserProgress>>(generateEmptyProgress());
@@ -209,13 +209,29 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     const previousState = current;
+    const isNowSolved = !previousState.solved;
+    const currentToday = isSimulated ? today : new Date();
+
+    let nextRev: string | null = null;
+    let firstSolvedAt = previousState.firstSolvedAt;
+
+    if (isNowSolved) {
+      firstSolvedAt = firstSolvedAt ?? toDateString(currentToday);
+      nextRev = toDateString(addDays(currentToday, REVISION_INTERVALS[0]));
+    } else {
+      nextRev = null;
+      // firstSolvedAt remains unchanged when unsolving
+    }
 
     // Optimistic Update
     setProgress(prev => ({
       ...prev,
       [problemId]: {
         ...prev[problemId],
-        solved: !previousState.solved
+        solved: isNowSolved,
+        revisionStage: 0,
+        firstSolvedAt: firstSolvedAt,
+        nextRevisionAt: nextRev
       }
     }));
 
@@ -224,7 +240,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const res = await progressApi.unsolve(problemId);
         setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
       } else {
-        const res = await progressApi.solve(problemId, toDateString(today));
+        const res = await progressApi.solve(problemId, toDateString(currentToday));
         setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
       }
     } catch (e: any) {
