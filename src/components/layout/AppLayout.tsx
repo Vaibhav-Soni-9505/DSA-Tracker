@@ -57,7 +57,7 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-background md:flex-row">
+    <div className="flex h-[100dvh] flex-col bg-background md:flex-row">
       {/* Desktop Sidebar */}
       <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-sidebar md:flex">
         {/* Logo / App Name */}
@@ -133,7 +133,7 @@ export default function AppLayout() {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="flex shrink-0 items-center justify-around border-t border-border bg-background px-2 py-2 md:hidden">
+      <nav className="flex shrink-0 items-center justify-around border-t border-border bg-background px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:hidden">
         {navItems.map(({ to, icon: NavIcon, label }) => (
           <NavLink
             key={to}
