@@ -11,7 +11,7 @@ type FilterType = "all" | "unsolved" | "solved" | "revision";
 import { useSimulatedDate } from "@/hooks/useSimulatedDate";
 
 export default function SheetPage() {
-  const { progress, toggleSolved } = useProgress();
+  const { progress, isInitialLoading, toggleSolved } = useProgress();
   const { today } = useSimulatedDate();
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
@@ -81,9 +81,9 @@ export default function SheetPage() {
           <div>
             <div className="text-xs text-muted-foreground font-medium">Sheet Completed</div>
             <div className="text-sm font-bold text-foreground">
-              {stats.percentage}%{" "}
+              {isInitialLoading ? "--" : stats.percentage}%{" "}
               <span className="text-xs font-normal text-muted-foreground">
-                ({stats.solvedCount}/{stats.totalCount})
+                ({isInitialLoading ? "--" : stats.solvedCount}/{stats.totalCount})
               </span>
             </div>
           </div>
@@ -140,6 +140,7 @@ export default function SheetPage() {
             onToggleProblem={toggleSolved}
             searchQuery={searchQuery}
             filter={filter}
+            isInitialLoading={isInitialLoading}
           />
         ))}
 

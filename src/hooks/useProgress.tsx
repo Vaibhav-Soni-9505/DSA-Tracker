@@ -9,6 +9,8 @@ import { progressApi } from "@/lib/api";
 
 interface ProgressContextType {
   progress: Record<string, UserProgress>;
+  isInitialLoading: boolean;
+  isSyncing: boolean;
   toggleSolved: (problemId: string) => Promise<void>;
   completeRevision: (problemId: string) => Promise<void>;
   resetProgress: () => Promise<void>;
@@ -69,6 +71,29 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [progress, setProgress] = useState<Record<string, UserProgress>>(generateEmptyProgress());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const pendingMutations = useRef(0);
+
+  const incrementPending = () => {
+    pendingMutations.current++;
+    setIsSaving(true);
+  };
+
+  const decrementPending = () => {
+    pendingMutations.current--;
+    if (pendingMutations.current <= 0) setIsSaving(false);
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (pendingMutations.current > 0) {
+        e.preventDefault();
+        e.returnValue = "Changes you made may not be saved.";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
   
   const currentUserRef = useRef<string | null>(null);
   // Ref to hold today to avoid re-triggering migration when date changes
@@ -235,6 +260,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     }));
 
+    incrementPending();
     try {
       if (previousState.solved) {
         const res = await progressApi.unsolve(problemId);
@@ -254,6 +280,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       console.error(e);
       alert(e.message || "Failed to update progress.");
+    } finally {
+      decrementPending();
     }
   };
 
@@ -292,6 +320,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     }));
 
+    incrementPending();
     try {
       const res = await progressApi.review(problemId, toDateString(today), previousState.revisionStage);
       setProgress(prev => ({ ...prev, [problemId]: { ...prev[problemId], ...res.data.progress } }));
@@ -316,6 +345,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } else {
         alert(e.message || "Failed to review problem.");
       }
+    } finally {
+      decrementPending();
     }
   };
 
@@ -355,16 +386,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  if (isLoading && isAuthenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="text-muted-foreground font-medium">Loading progress...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   if (error && isAuthenticated) {
     return (
@@ -380,8 +402,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   }
 
+  const isSyncing = isLoading || isSaving;
+
   return (
-    <ProgressContext.Provider value={{ progress, toggleSolved, completeRevision, resetProgress, loadTestData }}>
+    <ProgressContext.Provider value={{ 
+      progress, 
+      isInitialLoading: isLoading,
+      isSyncing, 
+      toggleSolved, 
+      completeRevision, 
+      resetProgress, 
+      loadTestData 
+    }}>
       {children}
     </ProgressContext.Provider>
   );

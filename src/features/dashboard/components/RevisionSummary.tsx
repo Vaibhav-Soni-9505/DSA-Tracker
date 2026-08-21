@@ -4,9 +4,30 @@ import { ArrowRight, RotateCcw, Sparkles } from "lucide-react";
 
 interface RevisionSummaryProps {
   dueCount: number;
+  isInitialLoading?: boolean;
 }
 
-export const RevisionSummary: React.FC<RevisionSummaryProps> = ({ dueCount }) => {
+export const RevisionSummary: React.FC<RevisionSummaryProps> = ({ dueCount, isInitialLoading = false }) => {
+  if (isInitialLoading) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm flex flex-col justify-between h-full min-h-[160px] animate-pulse">
+        <div>
+          <div className="h-4 w-24 bg-muted rounded mb-4"></div>
+          <div className="flex items-center gap-3">
+             <div className="h-10 w-10 bg-muted rounded-lg"></div>
+             <div className="flex-1">
+                <div className="h-5 w-24 bg-muted rounded mb-1"></div>
+                <div className="h-3 w-40 bg-muted rounded"></div>
+             </div>
+          </div>
+        </div>
+        <div className="mt-6">
+           <div className="h-9 w-32 bg-muted rounded-md"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg border border-border bg-card p-6 shadow-sm flex flex-col justify-between h-full">
       <div>

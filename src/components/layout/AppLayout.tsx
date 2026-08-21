@@ -47,14 +47,33 @@ function ThemeToggle() {
   );
 }
 
+import { useProgress } from "@/hooks/useProgress";
+import { useEffect } from "react";
+import { api } from "@/lib/api";
+
 export default function AppLayout() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { isSyncing } = useProgress();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  useEffect(() => {
+    let lastActive = Date.now();
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        if (Date.now() - lastActive > 5 * 60 * 1000) {
+          api.request('/health').catch(() => {});
+        }
+        lastActive = Date.now();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background md:flex-row">
@@ -126,7 +145,13 @@ export default function AppLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="relative flex-1 overflow-y-auto">
+        {isSyncing && (
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur">
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+            Syncing...
+          </div>
+        )}
         <div className="mx-auto max-w-5xl px-4 py-6 md:px-8 md:py-8">
           <Outlet />
         </div>

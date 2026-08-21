@@ -14,16 +14,17 @@ interface ProblemRowProps {
   onToggle: (id: string) => void;
   stepTitle?: string;
   topicTitle?: string;
+  isInitialLoading?: boolean;
 }
 
-export const ProblemRow: React.FC<ProblemRowProps> = ({ problem, progress, onToggle, stepTitle, topicTitle }) => {
+export const ProblemRow: React.FC<ProblemRowProps> = ({ problem, progress, onToggle, stepTitle, topicTitle, isInitialLoading = false }) => {
   const { today } = useSimulatedDate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  const isSolved = progress?.solved ?? false;
+  const isSolved = (!isInitialLoading && progress?.solved) ?? false;
   const stage = progress?.revisionStage ?? 0;
   const nextRev = progress?.nextRevisionAt ?? null;
-  const isRevDue = isSolved && nextRev && isPastOrToday(nextRev, today) && stage < 5;
+  const isRevDue = !isInitialLoading && isSolved && nextRev && isPastOrToday(nextRev, today) && stage < 5;
 
   return (
     <>
@@ -38,9 +39,11 @@ export const ProblemRow: React.FC<ProblemRowProps> = ({ problem, progress, onTog
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggle(problem.id);
+              if (!isInitialLoading) onToggle(problem.id);
             }}
+            disabled={isInitialLoading}
             className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border text-current transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-ring ${
+              isInitialLoading ? "opacity-50 cursor-not-allowed" :
               isSolved
                 ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-600 dark:border-emerald-600"
                 : "border-input bg-background hover:border-muted-foreground"

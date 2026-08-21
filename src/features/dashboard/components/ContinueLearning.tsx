@@ -7,13 +7,31 @@ interface ContinueLearningProps {
   problem: (Problem & { stepTitle: string; topicTitle: string }) | null;
   onSolveToggle: (id: string) => void;
   totalCount: number;
+  isInitialLoading?: boolean;
 }
 
 export const ContinueLearning: React.FC<ContinueLearningProps> = ({
   problem,
   onSolveToggle,
   totalCount,
+  isInitialLoading = false,
 }) => {
+  if (isInitialLoading) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm flex flex-col justify-between h-full min-h-[160px] animate-pulse">
+         <div>
+            <div className="h-4 w-32 bg-muted rounded mb-4"></div>
+            <div className="h-5 w-3/4 bg-muted rounded mb-2"></div>
+            <div className="h-3 w-1/2 bg-muted rounded"></div>
+         </div>
+         <div className="flex gap-2 mt-6">
+            <div className="h-9 w-32 bg-muted rounded-md"></div>
+            <div className="h-9 w-32 bg-muted rounded-md"></div>
+         </div>
+      </div>
+    );
+  }
+
   if (!problem) {
     return (
       <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-sm flex flex-col justify-between h-full">

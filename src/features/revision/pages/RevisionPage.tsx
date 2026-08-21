@@ -9,7 +9,7 @@ import { isRevisionDue } from "@/lib/date";
 import { useSimulatedDate } from "@/hooks/useSimulatedDate";
 
 export default function RevisionPage() {
-  const { progress, completeRevision, toggleSolved } = useProgress();
+  const { progress, isInitialLoading, completeRevision, toggleSolved } = useProgress();
   const { today } = useSimulatedDate();
 
   // 1. Map problems list with step and topic context
@@ -81,12 +81,14 @@ export default function RevisionPage() {
             <ListTodo className="h-4 w-4 text-amber-500" />
             Due Today
             <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-xs font-semibold px-2 py-0.5 border border-amber-200/40">
-              {queues.due.length}
+              {isInitialLoading ? "--" : queues.due.length}
             </span>
           </h2>
         </div>
 
-        {queues.due.length > 0 ? (
+        {isInitialLoading ? (
+          <div className="h-24 rounded-lg border border-border bg-card animate-pulse"></div>
+        ) : queues.due.length > 0 ? (
           <div className="flex flex-col gap-4">
             {queues.due.map(({ problem, progress }) => (
               <RevisionItem
@@ -115,12 +117,14 @@ export default function RevisionPage() {
             <CalendarClock className="h-4 w-4 text-muted-foreground" />
             Upcoming Revisions
             <span className="rounded-full bg-secondary text-muted-foreground text-xs font-semibold px-2 py-0.5">
-              {queues.upcoming.length}
+              {isInitialLoading ? "--" : queues.upcoming.length}
             </span>
           </h2>
         </div>
 
-        {queues.upcoming.length > 0 ? (
+        {isInitialLoading ? (
+          <div className="h-24 rounded-lg border border-border bg-card animate-pulse"></div>
+        ) : queues.upcoming.length > 0 ? (
           <div className="flex flex-col gap-4">
             {queues.upcoming.map(({ problem, progress }) => (
               <RevisionItem
@@ -148,12 +152,14 @@ export default function RevisionPage() {
             <CheckCircle className="h-4 w-4 text-emerald-500" />
             Completed (5 Rounds)
             <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-2 py-0.5 border border-emerald-200/40">
-              {queues.completed.length}
+              {isInitialLoading ? "--" : queues.completed.length}
             </span>
           </h2>
         </div>
 
-        {queues.completed.length > 0 ? (
+        {isInitialLoading ? (
+          <div className="h-24 rounded-lg border border-border bg-card animate-pulse"></div>
+        ) : queues.completed.length > 0 ? (
           <div className="flex flex-col gap-3">
             {queues.completed.map(({ problem, progress }) => (
               <RevisionItem

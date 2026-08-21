@@ -9,9 +9,10 @@ import { useSimulatedDate } from "@/hooks/useSimulatedDate";
 interface StepAccordionProps {
   step: Step;
   progress: Record<string, UserProgress>;
-  onToggleProblem: (id: string) => void;
+  onToggleProblem: (problemId: string) => void;
   searchQuery: string;
   filter: "all" | "unsolved" | "solved" | "revision";
+  isInitialLoading?: boolean;
 }
 
 export const StepAccordion: React.FC<StepAccordionProps> = ({
@@ -20,6 +21,7 @@ export const StepAccordion: React.FC<StepAccordionProps> = ({
   onToggleProblem,
   searchQuery,
   filter,
+  isInitialLoading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { today } = useSimulatedDate();
@@ -80,8 +82,8 @@ export const StepAccordion: React.FC<StepAccordionProps> = ({
 
         <div className="flex items-center gap-4 self-end sm:self-center shrink-0">
           <div className="flex flex-col items-end gap-1">
-            <span className="text-sm font-semibold text-foreground">{percentage}% Complete</span>
-            <span className="text-xs text-muted-foreground">{solvedCount} / {totalCount} Solved</span>
+            <span className="text-sm font-semibold text-foreground">{isInitialLoading ? "--" : percentage}% Complete</span>
+            <span className="text-xs text-muted-foreground">{isInitialLoading ? "--" : solvedCount} / {totalCount} Solved</span>
           </div>
           <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground">
             {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -100,6 +102,7 @@ export const StepAccordion: React.FC<StepAccordionProps> = ({
               onToggleProblem={onToggleProblem}
               searchQuery={searchQuery}
               filter={filter}
+              isInitialLoading={isInitialLoading}
             />
           ))}
         </div>

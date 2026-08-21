@@ -10,7 +10,7 @@ import { isRevisionDue } from "@/lib/date";
 import { useSimulatedDate } from "@/hooks/useSimulatedDate";
 
 export default function DashboardPage() {
-  const { progress, toggleSolved } = useProgress();
+  const { progress, isInitialLoading, toggleSolved } = useProgress();
   const { today } = useSimulatedDate();
 
   // 1. Calculations
@@ -68,23 +68,24 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-3 lg:col-span-1">
-          <DashboardProgress solvedCount={stats.solvedCount} totalCount={stats.totalCount} />
+          <DashboardProgress solvedCount={stats.solvedCount} totalCount={stats.totalCount} isInitialLoading={isInitialLoading} />
         </div>
         <div className="md:col-span-1 lg:col-span-1">
           <ContinueLearning
             problem={nextProblem}
             onSolveToggle={(id) => toggleSolved(id)}
             totalCount={stats.totalCount}
+            isInitialLoading={isInitialLoading}
           />
         </div>
         <div className="md:col-span-1 lg:col-span-1">
-          <RevisionSummary dueCount={stats.dueCount} />
+          <RevisionSummary dueCount={stats.dueCount} isInitialLoading={isInitialLoading} />
         </div>
       </div>
 
       {/* Step Progress List */}
       <div>
-        <StepProgressList steps={a2zSheet} progress={progress} />
+        <StepProgressList steps={a2zSheet} progress={progress} isInitialLoading={isInitialLoading} />
       </div>
     </div>
   );

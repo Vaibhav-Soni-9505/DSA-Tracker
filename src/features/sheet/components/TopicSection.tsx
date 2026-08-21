@@ -12,6 +12,7 @@ interface TopicSectionProps {
   onToggleProblem: (id: string) => void;
   searchQuery: string;
   filter: "all" | "unsolved" | "solved" | "revision";
+  isInitialLoading?: boolean;
 }
 
 export const TopicSection: React.FC<TopicSectionProps> = ({
@@ -20,6 +21,7 @@ export const TopicSection: React.FC<TopicSectionProps> = ({
   onToggleProblem,
   searchQuery,
   filter,
+  isInitialLoading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { today } = useSimulatedDate();
@@ -67,23 +69,26 @@ export const TopicSection: React.FC<TopicSectionProps> = ({
 
         <div className="flex items-center gap-3 shrink-0">
           <div className="text-xs text-muted-foreground">
-            {solvedCount} / {totalCount} Solved
+            {isInitialLoading ? "--" : solvedCount} / {totalCount} Solved
           </div>
           <div className="w-16 h-1.5 rounded-full bg-secondary overflow-hidden hidden xs:block">
-            <div className="h-full bg-primary" style={{ width: `${percentage}%` }} />
+            <div className="h-full bg-primary" style={{ width: `${isInitialLoading ? 0 : percentage}%` }} />
           </div>
         </div>
       </button>
 
       {/* Problems List */}
       {isOpen && (
-        <div className="border-t border-border/50 divide-y divide-border/40">
+        <div className="divide-y divide-border/50 border-t border-border/50 bg-background/50">
           {filteredProblems.map((problem) => (
             <ProblemRow
               key={problem.id}
               problem={problem}
               progress={progress[problem.id]}
-              onToggle={onToggleProblem}
+              onToggle={() => onToggleProblem(problem.id)}
+              stepTitle={topic.title}
+              topicTitle={topic.title}
+              isInitialLoading={isInitialLoading}
             />
           ))}
         </div>
